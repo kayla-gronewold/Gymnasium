@@ -294,9 +294,9 @@ class FrozenLakeEnv(Env):
                     if letter in b"GH":
                         li.append((1.0, s, 0, True))
                     else:
-                        intended_prob = 0.6
-                        left_prob = 0.2
-                        right_prob = 0.2
+                        intended_prob = 0.8
+                        left_prob = 0.1
+                        right_prob = 0.1
 
                         if is_slippery:
                             # Intended direction
@@ -306,12 +306,7 @@ class FrozenLakeEnv(Env):
                             # Right of the intended direction
                             li.append((right_prob, *update_probability_matrix(row, col, (a + 1) % 4)))
                         else:
-                            # Intended direction
-                            li.append((intended_prob, *update_probability_matrix(row, col, a)))
-                            # Left of the intended direction
-                            li.append((left_prob, *update_probability_matrix(row, col, (a - 1) % 4)))
-                            # Right of the intended direction
-                            li.append((right_prob, *update_probability_matrix(row, col, (a + 1) % 4)))
+                            li.append((1.0, *update_probability_matrix(row, col, a)))
 
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
