@@ -257,8 +257,33 @@ class FrozenLakeEnv(Env):
             newstate = to_s(newrow, newcol)
             newletter = desc[newrow, newcol]
             terminated = bytes(newletter) in b"GH"
-            reward = float(newletter == b"G")
+            # reward = float(newletter == b"G")
+
+            if newletter == b'G':
+                reward = 1.0
+            elif newletter == b'H':
+                reward = -0.1
+            else:
+                reward = -0.01
+
             return newstate, reward, terminated
+
+        # for row in range(nrow):
+        #     for col in range(ncol):
+        #         s = to_s(row, col)
+        #         for a in range(4):
+        #             li = self.P[s][a]
+        #             letter = desc[row, col]
+        #             if letter in b"GH":
+        #                 li.append((1.0, s, 0, True))
+        #             else:
+        #                 if is_slippery:
+        #                     for b in [(a - 1) % 4, a, (a + 1) % 4]:
+        #                         li.append(
+        #                             (1.0 / 3.0, *update_probability_matrix(row, col, b))
+        #                         )
+        #                 else:
+        #                     li.append((1.0, *update_probability_matrix(row, col, a)))
 
         for row in range(nrow):
             for col in range(ncol):
@@ -269,13 +294,24 @@ class FrozenLakeEnv(Env):
                     if letter in b"GH":
                         li.append((1.0, s, 0, True))
                     else:
+                        intended_prob = 0.6
+                        left_prob = 0.2
+                        right_prob = 0.2
+
                         if is_slippery:
-                            for b in [(a - 1) % 4, a, (a + 1) % 4]:
-                                li.append(
-                                    (1.0 / 3.0, *update_probability_matrix(row, col, b))
-                                )
+                            # Intended direction
+                            li.append((intended_prob, *update_probability_matrix(row, col, a)))
+                            # Left of the intended direction
+                            li.append((left_prob, *update_probability_matrix(row, col, (a - 1) % 4)))
+                            # Right of the intended direction
+                            li.append((right_prob, *update_probability_matrix(row, col, (a + 1) % 4)))
                         else:
-                            li.append((1.0, *update_probability_matrix(row, col, a)))
+                            # Intended direction
+                            li.append((intended_prob, *update_probability_matrix(row, col, a)))
+                            # Left of the intended direction
+                            li.append((left_prob, *update_probability_matrix(row, col, (a - 1) % 4)))
+                            # Right of the intended direction
+                            li.append((right_prob, *update_probability_matrix(row, col, (a + 1) % 4)))
 
         self.observation_space = spaces.Discrete(nS)
         self.action_space = spaces.Discrete(nA)
